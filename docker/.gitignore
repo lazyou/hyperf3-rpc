@@ -1,0 +1,4 @@
+mysql8-data/*
+mysql8-logs/*
+redis6-data/*
+redis6-logs/*
