@@ -63,6 +63,8 @@ composer require hyperf/rpc-server
 
 
 ### client -- 服务消费者
+* 消费者是 http 请求，消费者再请求 rpc服务提供者 
+
 ```shell
 composer require hyperf/json-rpc
 composer require hyperf/rpc-client
@@ -79,3 +81,8 @@ composer require hyperf/rpc-client
       "gender": 1
   }'
   ```
+
+* 自动创建消费者:
+  * app/JsonRpc/Service/UserService.php 的作用只是为了构建发起请求的参数和返回结果，hyperf 支持自动配置服务消费者代理类.
+  
+  * 还是通过上面的访问方式

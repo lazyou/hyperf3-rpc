@@ -10,5 +10,5 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 return [
-    \App\JsonRpc\Interface\UserServiceInterface::class => \App\JsonRpc\Service\UserService::class,
+//    \App\JsonRpc\Interface\UserServiceInterface::class => \App\JsonRpc\Service\UserService::class,
 ];
