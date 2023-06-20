@@ -21,7 +21,7 @@ CREATE TABLE `users` (
 `composer config -g repo.packagist composer https://mirrors.aliyun.com/composer`
 
 
-### server
+### server -- 服务提供者
 ```shell
 composer require hyperf/json-rpc
 composer require hyperf/rpc-server
@@ -62,4 +62,20 @@ composer require hyperf/rpc-server
   * 如 UserService.php 中有 `getUserInfo` 方法，那么路由就是 `/user/getUserInfo`
 
 
-### client
+### client -- 服务消费者
+```shell
+composer require hyperf/json-rpc
+composer require hyperf/rpc-client
+```
+
+* 外部浏览器访问: http://localhost:9501/users/show?id=1
+
+* 外部 curl 创建数据:
+  ```shell
+  curl --location 'http://localhost:9501/users/store' \
+  --header 'Content-Type: application/json' \
+  --data '{
+      "name": "李2",
+      "gender": 1
+  }'
+  ```
