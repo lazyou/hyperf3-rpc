@@ -4,6 +4,7 @@ namespace App\JsonRpc\Service;
 
 use App\JsonRpc\Interface\UserServiceInterface;
 use App\Model\User;
+use App\Tools\ResponseTool;
 use Hyperf\RpcServer\Annotation\RpcService;
 
 #[RpcService(name: "UserService", server: "jsonrpc-http", protocol: "jsonrpc-http")]
@@ -30,6 +31,6 @@ class UserService implements UserServiceInterface
             throw new \RuntimeException('没有该用户');
         }
 
-        return $user->toArray();
+        return ResponseTool::success($user->toArray());
     }
 }
