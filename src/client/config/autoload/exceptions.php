@@ -13,6 +13,7 @@ return [
     'handler' => [
         'http' => [
             Hyperf\HttpServer\Exception\Handler\HttpExceptionHandler::class,
+            // 在默认的异常类中埋进行远程调用异常处理
             App\Exception\Handler\AppExceptionHandler::class,
         ],
     ],
