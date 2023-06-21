@@ -32,6 +32,7 @@ services:
       - ./docker/mysql8-conf:/etc/mysql/conf.d
       - ./docker/mysql8-logs:/logs
   consul:
+    # data 没有挂载到外面
     image: "consul:latest"
     container_name: "consul"
     command: ["agent", "-server", "-bootstrap", "-ui", "-node", "1", "-client", "0.0.0.0"]

@@ -5,11 +5,25 @@ namespace App\JsonRpc\Service;
 use App\JsonRpc\Interface\UserServiceInterface;
 use App\Model\User;
 use App\Tools\ResponseTool;
+use Hyperf\Context\ApplicationContext;
 use Hyperf\RpcServer\Annotation\RpcService;
+use Hyperf\ServiceGovernanceConsul\ConsulAgent;
 
-#[RpcService(name: "UserService", server: "jsonrpc-http", protocol: "jsonrpc-http")]
+#[RpcService(name: "UserService", server: "jsonrpc-http", protocol: "jsonrpc-http", publishTo: "consul")]
 class UserService implements UserServiceInterface
 {
+    // 用于测试服务是否注册到服务中心
+    public function test()
+    {
+        // 获取注册的服务
+        $agent = ApplicationContext::getContainer()->get(ConsulAgent::class);
+
+        return ResponseTool::success([
+            'services' => $agent->services()->json(),
+            'checks'   => $agent->checks()->json(),
+        ]);
+    }
+
     public function createUser(string $name, string $gender): array
     {
         if (empty($name)) {
