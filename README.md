@@ -150,3 +150,11 @@ php bin/hyperf.php vendor:publish hyperf/service-governance
   ```
 
 * 浏览器查看服务: http://localhost:8500/ui/dc1/services
+
+
+### 下 -- 【服务发现】，构建消费者使用服务
+* `composer require hyperf/service-governance-consul`
+
+* client 配置 `config/autoload/services.php`
+
+* 外部浏览器访问: http://localhost:9501/users/show?id=1
