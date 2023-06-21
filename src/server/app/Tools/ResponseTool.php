@@ -15,12 +15,12 @@ class ResponseTool
         );
     }
 
-    public static function error(int $code = ResponseCode::ERROR, string $message = '', array $data = [])
+    public static function error(int $code = ResponseCode::ERROR, string $message = '', array $data = []): array
     {
         if (empty($message)) {
             return self::commonResuls($code, ResponseCode::getMessage($code), $data);
         } else {
-            return  self::commonResuls($code, $message, $data);
+            return self::commonResuls($code, $message, $data);
         }
     }
 

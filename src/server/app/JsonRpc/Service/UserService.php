@@ -10,7 +10,7 @@ use Hyperf\RpcServer\Annotation\RpcService;
 #[RpcService(name: "UserService", server: "jsonrpc-http", protocol: "jsonrpc-http")]
 class UserService implements UserServiceInterface
 {
-    public function createUser(string $name, string $gender): string
+    public function createUser(string $name, string $gender): array
     {
         if (empty($name)) {
             throw new \RuntimeException('用户名不能为空');
@@ -21,7 +21,7 @@ class UserService implements UserServiceInterface
             'gender' => $gender,
         ]);
 
-        return $user ? 'success' : 'failed';
+        return $user ? ResponseTool::success($user->toArray()) : ResponseTool::error('创建用户失败');
     }
 
     public function getUserInfo(int $id): array
