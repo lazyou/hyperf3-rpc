@@ -13,6 +13,13 @@ use Hyperf\Server\Event;
 use Hyperf\Server\Server;
 use Swoole\Constant;
 
+$localIp = '0.0.0.0';
+$localIps = swoole_get_local_ip();
+if ($localIps) {
+    $key = array_key_first($localIps);
+    $localIp = $localIps[$key];
+}
+
 return [
     'mode' => SWOOLE_PROCESS,
     'servers' => [
@@ -29,6 +36,8 @@ return [
         [
             'name' => 'jsonrpc-http',
             'type' => Server::SERVER_HTTP,
+            // 用于日志区分哪台服务器出错，在 JsonRpcExceptionHandler 会用到
+            'host_log' => $localIp,
             'host' => '0.0.0.0',
             'port' => 9600,
             'sock_type' => SWOOLE_SOCK_TCP,

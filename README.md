@@ -55,6 +55,19 @@ composer require hyperf/rpc-server
         "id": "",
         "context": []
     }'
+  
+    # 用户不存在情况，message 查看报错的具体容器ip
+    curl --location 'http://172.28.0.5:9600/' \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "jsonrpc": "2.0",
+        "method": "/user/getUserInfo",
+        "params": {
+          "id": 99
+        },
+        "id": "",
+        "context": []
+    }'
     ```
 
 * 【重要】关于请求与路由的说明（这里没有定义路由，怎么就可以通过路由进行访问了？）:
@@ -137,15 +150,21 @@ php bin/hyperf.php vendor:publish hyperf/service-governance
 * 测试 consul 服务：
   ```shell
   # server 容器内执行
-  curl --location 'http://127.0.0.1:9600/' \
+  curl --location 'http://localhost:9600/' \
   --header 'Content-Type: application/json' \
   --data '{
       "jsonrpc": "2.0",
       "method": "/user/test",
-      "params": {
-          "name": "李四",
-          "gender": 1
-      }
+      "params": {}
+  }'
+  
+  # 如果 server/config/autoload/server.php 配置是指定容器内 ip 的话
+  curl --location 'http://172.28.0.5:9600/' \
+  --header 'Content-Type: application/json' \
+  --data '{
+      "jsonrpc": "2.0",
+      "method": "/user/test",
+      "params": {}
   }'
   ```
 

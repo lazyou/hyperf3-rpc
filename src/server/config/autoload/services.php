@@ -24,7 +24,7 @@ return [
         // consul 配置
         'consul' => [
             // 服务中心地址
-            'uri' => 'http://consul:8500',
+            'uri' => \Hyperf\Support\env('RPC_CONSUL_URI'),
             // consul 权限控制所需要的 token
             'token' => '',
             'check' => [
