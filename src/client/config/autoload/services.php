@@ -35,7 +35,7 @@ return [
                 'load_balancer' => 'random',
                 'registry'      => [
                     'protocol' => 'consul',
-                    'address'  => 'http://consul:8500'
+                    'address'  => \Hyperf\Support\env('RPC_CONSUL_URI'),
                 ]
             ];
         }
