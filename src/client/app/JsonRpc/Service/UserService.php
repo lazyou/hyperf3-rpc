@@ -1,8 +1,8 @@
 <?php
-// app/JsonRpc/Service/UserService.php
-namespace App\JsonRpc\Service;
-
-// app/JsonRpc/Service/UserService.php 的作用只是为了构建发起请求的参数和返回结果，hyperf 支持自动配置服务消费者代理类
+//// app/JsonRpc/Service/UserService.php
+//namespace App\JsonRpc\Service;
+//
+//// app/JsonRpc/Service/UserService.php 的作用只是为了构建发起请求的参数和返回结果，hyperf 支持自动配置服务消费者代理类
 //use App\JsonRpc\Interface\UserServiceInterface;
 //use Hyperf\RpcClient\AbstractServiceClient;
 //
@@ -25,5 +25,10 @@ namespace App\JsonRpc\Service;
 //    public function getUserInfo(int $id)
 //    {
 //        return $this->__request(__FUNCTION__, compact('id'));
+//    }
+//
+//    public function test()
+//    {
+//        return $this->__request(__FUNCTION__);
 //    }
 //}

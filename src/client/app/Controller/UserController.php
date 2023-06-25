@@ -45,4 +45,10 @@ class UserController extends AbstractController
 
         return ResponseTool::success($user['data']);
     }
+
+    #[GetMapping('/users/test')]
+    public function test()
+    {
+        return ResponseTool::success($this->userService->test());
+    }
 }
