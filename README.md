@@ -7,12 +7,12 @@ redis6 默认账户为 default
 
 ```sql
 CREATE TABLE `users` (
-                         `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-                         `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-                         `gender` tinyint(1) NOT NULL DEFAULT 0,
-                         `created_at` timestamp NULL DEFAULT now(),
-                         `updated_at` timestamp NULL DEFAULT now(),
-                         PRIMARY KEY (`id`) USING BTREE
+    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+    `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    `gender` tinyint(1) NOT NULL DEFAULT 0,
+    `created_at` timestamp NULL DEFAULT now(),
+    `updated_at` timestamp NULL DEFAULT now(),
+    PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
 ```
 
@@ -177,3 +177,65 @@ php bin/hyperf.php vendor:publish hyperf/service-governance
 * client 配置 `config/autoload/services.php`
 
 * 外部浏览器访问: http://localhost:9501/users/show?id=1
+
+
+### consul 负载均衡
+* virtual 准备4台虚拟机，桥接模式。其中 master 使用 docker 安装 mysql redis
+
+```shell
+# 1. 服务端启动 consul （TODO： 如何后台启动啊？ 加 & 是临时解决方案）
+consul agent -server -bind=192.168.20.35 -client=0.0.0.0 -ui -bootstrap-expect=3 -data-dir=/home/u/consul/data/ -node=server-01 &
+
+consul agent -server -bind=192.168.20.36 -client=0.0.0.0 -ui -bootstrap-expect=3 -data-dir=/home/u/consul/data/ -node=server-02 &
+
+consul agent -server -bind=192.168.20.37 -client=0.0.0.0 -ui -bootstrap-expect=3 -data-dir=/home/u/consul/data/ -node=server-03 &
+
+
+# 2. 消费端以 client 模式启动
+consul agent -client=0.0.0.0 -data-dir=/home/u/consul/data/ -ui -bind=192.168.20.38 -node=client-01 &
+
+
+# 3. 除了 192.168.20.35 都执行
+consul join 192.168.20.35
+
+# master 运行 mysql 8
+docker run -d \
+    --name test-mysql8 \
+    -p 3306:3306 \
+    -v $PWD/cnf:/etc/mysql/conf.d \
+    -v $PWD/data:/var/lib/mysql \
+    -v /etc/localtime:/etc/localtime:ro \
+    -e MYSQL_ROOT_PASSWORD=mysql112233 \
+    mysql:8.0.31
+
+# master 运行redis5， redis.conf 参考 blog
+docker run -d \
+    --name test-redis5 \
+    -p 6379:6379 \
+    -v $PWD/redis.conf:/etc/redis/redis.conf \
+    -v $PWD/data:/data \
+    redis:5.0.13 \
+    redis-server /etc/redis/redis.conf \
+    --appendonly yes \
+    --requirepass "redis112233"
+
+# 配置 APP_NAME DB 等
+cp .env.example .env
+php bin/hyperf.php start
+
+
+# 访问 consul master 的 web ui
+http://192.168.20.35:8500/ui/dc1/services
+
+http://192.168.20.35:8500/ui/dc1/nodes
+
+
+# 访问 client 接口:
+http://192.168.20.38:9501/users/show?id=1
+
+http://192.168.20.38:9501/users/test
+
+
+# 压测，太多扛不住咋回事
+ab -n 1000 -c 10 'http://192.168.20.38:9501/users/show?id=1'
+```

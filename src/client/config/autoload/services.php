@@ -32,6 +32,7 @@ return [
             $consumers[] = [
                 'name'          => $name,
                 'service'       => $interface,
+                // load_balancer 为负载均衡算法，默认值为 random
                 'load_balancer' => 'random',
                 'registry'      => [
                     'protocol' => 'consul',
