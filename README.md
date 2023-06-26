@@ -239,3 +239,47 @@ http://192.168.20.38:9501/users/test
 # 压测，太多扛不住咋回事
 ab -n 1000 -c 10 'http://192.168.20.38:9501/users/show?id=1'
 ```
+
+
+
+### Nacos 集群
+* https://www.ziruchu.com/art/666
+
+* TODO: 可以单机试试
+
+
+### 服务限流
+* 服务限流指在高并发情况下，为了保护系统正常运行，从而对象访问服务的请求进行限制，从而保证服务的高可用
+
+#### 为什么需要服务限流
+* 把系统拆分为微服务之后，每个微服务可能会存在相互调用的关系，若其中某个服务被突如其来的大流量击垮，可能会引发 **雪崩** ，导致相关的微服务都不可用，从而影响业务。
+
+* 【方案1：服务提供者中实现限流】Server  -- 针对所有请求的限流（不是针对用户 ID）
+```shell
+# 安装限流组件
+composer require hyperf/rate-limit
+
+# 该限流组件默认使用 redis 作为存储，也以把 redis 装上
+composer require hyperf/redis
+
+
+# 限流组件 -- 生成配置
+# 该组件会在 config/autoload 目录下生成 rate_limit.php 文件
+php bin/hyperf.php vendor:publish hyperf/rate-limit
+
+# redis 组件
+# 该组件会在 config/autoload 目录下生成 redis.php 文件
+php bin/hyperf.php vendor:publish hyperf/redis
+
+```
+
+* 需要注意： 该限流是【针对所有请求】进行的，而不是针对具体用户。
+  * 如最大支持 1000 个请求，假如说某一个用户一瞬间请求了 1000 次，后面后续的用户都将触发限流机制。
+  * 如果要针对用户进行限流，达到 A 用户被限流，B 用户正常请求，可以根据用户 ID 进行。
+
+* 浏览器访问（不断 f5 刷新就能看到限流响应）: http://localhost:9501/users/show?id=1
+  * 如果没效果则删除 server 的 runtime 目录
+
+* TODO: 但是 rate_limit.php 配置并不能很直观的看出支持每秒多少个请求啊？？？？
+
+

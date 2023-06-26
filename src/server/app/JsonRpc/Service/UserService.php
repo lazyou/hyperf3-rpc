@@ -8,7 +8,9 @@ use App\Tools\ResponseTool;
 use Hyperf\Context\ApplicationContext;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\RpcServer\Annotation\RpcService;
-use Hyperf\ServiceGovernanceConsul\ConsulAgent;
+use Hyperf\RateLimit\Exception\RateLimitException;
+use Hyperf\Di\Aop\ProceedingJoinPoint;
+use Hyperf\RateLimit\Annotation\RateLimit;
 
 #[RpcService(name: "UserService", server: "jsonrpc-http", protocol: "jsonrpc-http", publishTo: "consul")]
 class UserService implements UserServiceInterface
@@ -27,6 +29,7 @@ class UserService implements UserServiceInterface
         return $user ? ResponseTool::success($user->toArray()) : ResponseTool::error('创建用户失败');
     }
 
+    #[RateLimit(limitCallback: [UserService::class, "limitCallback"])]
     public function getUserInfo(int $id): array
     {
         $user = User::query()->find($id);
@@ -35,6 +38,12 @@ class UserService implements UserServiceInterface
         }
 
         return ResponseTool::success($user->toArray());
+    }
+
+    // 被限流后调用
+    public static function limitCallback(float $seconds, ProceedingJoinPoint $proceedingJoinPoint)
+    {
+        throw new RateLimitException('频繁的请求，请稍后重试（服务提供者）', 500);
     }
 
 //    // 用于测试服务是否注册到服务中心
