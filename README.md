@@ -254,7 +254,7 @@ ab -n 1000 -c 10 'http://192.168.20.38:9501/users/show?id=1'
 #### 为什么需要服务限流
 * 把系统拆分为微服务之后，每个微服务可能会存在相互调用的关系，若其中某个服务被突如其来的大流量击垮，可能会引发 **雪崩** ，导致相关的微服务都不可用，从而影响业务。
 
-* 【方案1：服务提供者中实现限流】Server  -- 针对所有请求的限流（不是针对用户 ID）
+#####【方案1：服务提供者中实现限流】Server  -- 针对所有请求的限流（不是针对用户 ID）
 ```shell
 # 安装限流组件
 composer require hyperf/rate-limit
@@ -271,6 +271,7 @@ php bin/hyperf.php vendor:publish hyperf/rate-limit
 # 该组件会在 config/autoload 目录下生成 redis.php 文件
 php bin/hyperf.php vendor:publish hyperf/redis
 
+# 限流代码 app/JsonRpc/Service/UserService.php
 ```
 
 * 需要注意： 该限流是【针对所有请求】进行的，而不是针对具体用户。
@@ -280,6 +281,21 @@ php bin/hyperf.php vendor:publish hyperf/redis
 * 浏览器访问（不断 f5 刷新就能看到限流响应）: http://localhost:9501/users/show?id=1
   * 如果没效果则删除 server 的 runtime 目录
 
+
+
+#####【方案2：服务提供者中实现限流】Client  -- 控制器中实现对用户限（针对用户 ID）
+```shell
+# 安装限流组件
+composer require hyperf/rate-limit
+# 生成配置文件
+php bin/hyperf.php vendor:publish hyperf/rate-limit
+
+# 限流代码 app/Controller/UserController.php
+```
+
+* 浏览器访问（不断 f5 刷新就能看到限流响应）: http://localhost:9501/users/test?user_id=2
+  * 如果没效果则删除 server 的 runtime 目录
+
+
+##### 限流总结
 * TODO: 但是 rate_limit.php 配置并不能很直观的看出支持每秒多少个请求啊？？？？
-
-
