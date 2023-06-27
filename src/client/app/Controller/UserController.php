@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Constants\ResponseCode;
 use App\JsonRpc\Interface\UserServiceInterface;
 use App\Tools\ResponseTool;
+use Hyperf\CircuitBreaker\Annotation\CircuitBreaker;
 use Hyperf\Context\ApplicationContext;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
@@ -69,5 +70,26 @@ class UserController extends AbstractController
     {
         $request = ApplicationContext::getContainer()->get(RequestInterface::class);
         return $request->input('user_id', 0);
+    }
+
+    // 控制器实现熔断设置
+    #[GetMapping('/users/testCircuitBreaker')]
+    #[CircuitBreaker(options: ['timeout' => 0.05], failCounter: 1, successCounter: 3, fallback: "app\Controller\UserController::testCircuitBreakerFallback")]
+    public function testCircuitBreaker()
+    {
+        $id = (int) $this->request->input('id');
+        $result = $this->userService->timeout($id);
+        if ($result['code'] != ResponseCode::SUCCESS) {
+            throw new \RuntimeException($result['message']);
+        }
+
+        return ResponseTool::success($result['data']);
+    }
+
+    // 熔断器触发后，所有请求会执行该回调方法
+    #[GetMapping('/users/testCircuitBreakerFallback')]
+    public function testCircuitBreakerFallback()
+    {
+        return ResponseTool::error(message: '服务器繁忙，请稍后重试(熔断) ...');
     }
 }

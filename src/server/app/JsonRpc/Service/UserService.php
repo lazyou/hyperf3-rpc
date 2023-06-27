@@ -86,4 +86,22 @@ class UserService implements UserServiceInterface
             'host'     => $host,
         ]);
     }
+
+    public function timeout($id)
+    {
+        try {
+            // 当id大于0时，暂停1秒 模拟耗时业务
+            if ($id > 0) {
+                sleep(1);
+            }
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
+
+        logger()->info('熔断测试： 模拟耗时业务');
+
+        return ResponseTool::success([
+            'data' => '成功',
+        ]);
+    }
 }

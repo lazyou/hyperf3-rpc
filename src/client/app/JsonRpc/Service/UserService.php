@@ -31,4 +31,9 @@
 //    {
 //        return $this->__request(__FUNCTION__);
 //    }
+//
+//    public function timeout($id)
+//    {
+//        return $this->__request(__FUNCTION__, compact('id'));
+//    }
 //}
