@@ -389,3 +389,7 @@ successCounter	成功次数大于等于3，关闭熔断器
 duration	        熔断后，重新恢复服务调用的时间，10秒内新的请求会执行 fallback 方法
 fallback	        用于指定熔断时执行的方法
 ```
+
+3. 消费者访问触发:
+   * 触发熔断: http://localhost:9501/users/testCircuitBreaker?id=1
+   * 不触发熔断: http://localhost:9501/users/testCircuitBreaker?id=-1
