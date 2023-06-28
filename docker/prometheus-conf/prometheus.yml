@@ -1,0 +1,37 @@
+# 全局配置
+global:
+  # 每15秒向目标采样点拉取数据
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+# 告警管理器（Alertmanager）的配置
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+        # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+# 告警规则有哪些
+rule_files:
+# - "first_rules.yml"
+# - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+# 【抓取监控信息的目标】，一个 job_name 就是一个目标
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  # prometheus 本身服务配置，metrics_path defaults to '/metrics'，scheme defaults to 'http'.
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+  # 消费者配置（hypef 的消费者）， 默认路由是 /metrics
+  - job_name: 'rpc-customer'
+    static_configs:
+      - targets: ['client:9503']

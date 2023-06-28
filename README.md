@@ -430,3 +430,43 @@ php bin/hyperf.php vendor:publish hyperf/tracer
 
 * TODO: 了解更新 Zipkin 的功能以及实战作用
     * 比如正式环境一致开启这个？？
+
+
+
+### 使用 Prometheus + Grafana 监控服务
+* https://www.ziruchu.com/art/672
+
+* 服务上线后，需要知道服务的健康状态、服务资源使用情况、慢查询、业务埋点等情况，通过监控就可以掌握这些情况，以便进行后续优化操作。
+
+* Prometheus （中文名：普罗米修斯）是由 SoundCloud 开发的开源监控报警系统和时序列数据库(TSDB)。它是一个监控采集与数据存储框架（监控服务器端），具体采集什么数据依赖于Exporter（监控客户端）。
+
+* Grafana 是一个跨平台的开源的度量分析和可视化工具，可以通过将采集的数据查询然后可视化的展示，并及时通知。一般是和一些时间序列数据库进行配合来展示数据的。
+
+* 一句话了解：Prometheus 是时间序列数据库，它负责提供数据，Grafana 负责对这些数据指标进行可视化展示。
+
+* 访问 prometheus: http://localhost:9090
+    * http://localhost:9090/targets
+
+* 访问消费者 9503 端口:
+    1. 消费者接口访问: http://localhost:9501/users/show?id=1
+    2. 消费者 metrics 访问(注意端口不一样): http://localhost:9503/metrics
+       1. ![customer-9503-metrics](./customer-9503-metrics.png) 
+    3. 在 metrics 页面搜索关键字 "users/show" 就能看到如下的日志:
+    ```shell
+    ...
+    customer_http_requests_bucket{request_status="500",request_path="/users/show",request_method="GET",le="0.005"} 0
+    customer_http_requests_bucket{request_status="500",request_path="/users/show",request_method="GET",le="0.01"} 0
+    ...
+    ```
+    4. 在 http://localhost:9090/graph 搜 customer_http_requests_bucket 也能看到
+       1. ![Prometheus.png](./Prometheus.png) 
+
+* 访问 grafana: http://localhost:3000 -- 【Grafana 配置 Prometheus 数据源】
+    1. 账号密码 admin 登录 grafana
+    2. 界面点击 DATA SOURCES (添加数据源)
+    3. 选择 Prometheus ， 填入 http://prometheus:9090 保存
+    4. 查看 Data sources: http://localhost:3000/connections/datasources
+    5. http://localhost:3000/dashboard/import 导入仪表盘, 填入内容复制 grafana.json
+    6. ![面板查看-上](./grafana01-上半部分.png)
+    7. ![面板查看-下](./grafana02-下半部分.png)
+    8. ab 测试使面板有数据: `ab -n 100 -c 10 'http://localhost:9501/users/show?id=1'`

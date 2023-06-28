@@ -54,6 +54,29 @@ services:
 #      - MYSQL_USER=zipkin
 #      - MYSQL_PASS=xxxxxx
 #      - JAVA_OPTS=-Dlogging.level.zipkin2=DEBUG
+  prometheus:
+    image: "prom/prometheus"
+    container_name: "prometheus"
+    #    restart: "always"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus-conf/prometheus.yml:/etc/prometheus/prometheus.yml
+    links:
+      - grafana
+      - client
+  grafana:
+      image: "grafana/grafana"
+      container_name: "grafana"
+#      restart: always
+#      volumes:
+        # 创建 etc目录，data目录存储grafana的数据(存在权限问题，先关闭)
+#        - ./docker/grafana-etc:/etc/grafana
+#        - ./docker/grafana-data:/var/lib/grafana
+      environment:
+        GF_SECURITY_ADMIN_PASSWORD: admin
+      ports:
+        - "3000:3000"
   server:
     build: ./src/server/
     volumes:
@@ -77,6 +100,7 @@ services:
     command: ["tail", "-f", "/dev/null"]
     ports:
       - "9501:9501"
+      - "9503:9503"
     container_name: "client"
     # restart: "always"
     links:
