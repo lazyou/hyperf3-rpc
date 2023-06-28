@@ -36,9 +36,24 @@ services:
     image: "consul:latest"
     container_name: "consul"
     command: ["agent", "-server", "-bootstrap", "-ui", "-node", "1", "-client", "0.0.0.0"]
-    restart: "always"
+#    restart: "always"
     ports:
       - "8500:8500"
+  zipkin:
+    image: "openzipkin/zipkin:latest"
+    container_name: "zipkin"
+    #    restart: "always"
+    ports:
+      - "9411:9411"
+#    environment:
+#      - TZ=Asia/Shanghai
+#      - STORAGE_TYPE=mysql
+#      - MYSQL_HOST=mysql8
+#      - MYSQL_TCP_PORT=3306
+#      - MYSQL_DB=zipkin
+#      - MYSQL_USER=zipkin
+#      - MYSQL_PASS=xxxxxx
+#      - JAVA_OPTS=-Dlogging.level.zipkin2=DEBUG
   server:
     build: ./src/server/
     volumes:
@@ -52,6 +67,7 @@ services:
     # restart: "always"
     links:
       - consul
+      - zipkin
       - mysql8
       - redis6
   client:
@@ -65,6 +81,7 @@ services:
     # restart: "always"
     links:
       - consul
+      - zipkin
       - server
       - mysql8
       - redis6

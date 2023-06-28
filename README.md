@@ -298,7 +298,7 @@ php bin/hyperf.php vendor:publish hyperf/rate-limit
 
 
 #### 限流总结
-* TODO: 思考一下限流做在服务提供者好还是做在服务消费者更好？ 
+* TODO: 思考一下限流做在服务提供者好还是做在服务消费者更好？
 
 * TODO: 但是 rate_limit.php 配置并不能很直观的看出支持每秒多少个请求啊？？？？
 
@@ -330,7 +330,7 @@ php bin/hyperf.php vendor:publish hyperf/rate-limit
 1. 初始状态，服务器无故障时，熔断器处于 `closed` 状态；
 
 2. 固定时间内（Hystrix 默认是 10 秒），接口调用出错比率达到一个阈值时（ Hystrix 默认为 50%），会进入熔断 `open` 开启状态。进行熔断状态后，后续调用该服务的请求不再经过网络，直接执行本地的  
-fallback 方法；
+   fallback 方法；
 
 3. 在进入熔断开启状态一段时间之后（Hystrix 默认是 5 秒），熔断器会进入 `half-open `半熔断状态。所谓半熔断就是尝试恢复服务调用，允许有限的流量调用该服务，并监控调用成功率。如果成功率达到预期，则说明服务已恢复，进入熔断关闭状态；如果成功率仍旧很低，则重新进入熔断开启状态。
 
@@ -391,5 +391,42 @@ fallback	        用于指定熔断时执行的方法
 ```
 
 3. 消费者访问触发:
-   * 触发熔断: http://localhost:9501/users/testCircuitBreaker?id=1
-   * 不触发熔断: http://localhost:9501/users/testCircuitBreaker?id=-1
+    * 触发熔断: http://localhost:9501/users/testCircuitBreaker?id=1
+    * 不触发熔断: http://localhost:9501/users/testCircuitBreaker?id=-1
+
+
+
+### 使用 Zipkin 分布式调用链追踪
+* hyperf 官方提供了一款非常好用的分布式调用链追踪组件—— hyperf/tracer。该组件可以对和各个跨网络请求进行追踪分析，**包括请求方法、异常、Guzzle HTTP 调用、Redis 调用、DB 调用都可以进行监听**，还能通过可视化界面进行监控管理。
+
+* 参考: https://www.ziruchu.com/art/671
+```shell
+# 安装
+docker pull openzipkin/zipkin
+# 启动
+docker run --name zipkin -d -p 9411:9411 openzipkin/zipkin
+
+
+# 安装调用链追踪组件
+composer require hyperf/tracer
+# 可选
+# hyperf/tracer 组件默认安装了 Zipkin 相关依赖
+# 若要看 redis 效果，可以安装该组件
+composer require hyperf/cache
+
+php bin/hyperf.php vendor:publish hyperf/tracer
+
+# 通过中间件形式采集（服务端、客户端都要配置，只配置一端似乎也行，取决于需求）
+\Hyperf\Tracer\Middleware\TraceMiddleware::class
+```
+
+* 后台： http://localhost:9411/zipkin/
+
+* 使用过程：
+    1. 访问消费者 http://localhost:9501/users/show?id=1
+    2. 去 Zipkin 查看调用链路 http://localhost:9411/zipkin/
+    3. ![调用链路](./zipkin-01.png)
+    4. 如果是访问异常 http://localhost:9501/users/show?id=999 ， 可以在 zipkin 看到标红提示，且能分析 trace
+
+* TODO: 了解更新 Zipkin 的功能以及实战作用
+    * 比如正式环境一致开启这个？？
